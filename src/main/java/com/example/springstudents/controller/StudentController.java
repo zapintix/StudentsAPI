@@ -2,6 +2,7 @@ package com.example.springstudents.controller;
 
 import com.example.springstudents.dto.ApiResponse;
 import com.example.springstudents.dto.StudentDTO;
+import com.example.springstudents.minio.MinioService;
 import com.example.springstudents.model.Group;
 import com.example.springstudents.model.Student;
 import com.example.springstudents.service.GroupService;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 @RestController
@@ -19,6 +21,7 @@ public class StudentController {
 
     private final StudentService service;
     private final GroupService groupService;
+    private final MinioService minioService;
 
     @GetMapping
     public List<Student> findAllStudent(){
@@ -73,6 +76,25 @@ public class StudentController {
         }else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Студеент не найден");
         }
+    }
+
+    @PostMapping("/{email}/upload-photo")
+    public ResponseEntity<ApiResponse<Student>> uploadPhoto(@PathVariable String email, @RequestParam("file") MultipartFile file) throws Exception {
+        Student student = service.findByEmail(email);
+        if(student == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>("Студент не найден", null, false));
+        }
+
+        String photoUrl = minioService.uploadFile(file);
+
+        student.setPhotoUrl(photoUrl);
+        Student updatedStudent = service.updateStudent(email,student);
+
+        return ResponseEntity.ok(new ApiResponse<>("Фото успешно загруженно", updatedStudent, true));
+
+
+
     }
 
 }

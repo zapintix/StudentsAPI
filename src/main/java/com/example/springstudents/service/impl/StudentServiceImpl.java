@@ -47,6 +47,9 @@ public class StudentServiceImpl implements StudentService {
             if(student.getDataOfBirth() != null){
                 existingStudent.setDataOfBirth(student.getDataOfBirth());
             }
+            if(student.getPhotoUrl() != null){
+                existingStudent.setPhotoUrl(student.getPhotoUrl());
+            }
 
             return repository.save(existingStudent);
         }

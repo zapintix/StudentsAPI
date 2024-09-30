@@ -23,6 +23,7 @@ public class Student {
     @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
+    private String photoUrl;
 
     public int getAge() {
         return Period.between(dataOfBirth, LocalDate.now()).getYears();
